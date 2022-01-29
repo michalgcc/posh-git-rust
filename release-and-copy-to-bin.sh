@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # Example PS1 to add to .bashrc
-# PS1='[\u@\h \W] $(rusty-git-status)\$ '
+# PS1='[\u@\h \W] $(posh-git-rust)\$ '
 
 cargo build --release
-cp target/release/rusty-git-status ~/.local/bin/
+cp target/release/posh-git-rust ~/.local/bin/

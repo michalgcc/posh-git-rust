@@ -26,7 +26,8 @@ fn main() {
     let branch_name = parser::extract_branch_name(&git_status_command_output_string);
 
     if branch_name == None {
-        println!("{}", args)
+        println!("{}", args);
+        return
     }
 
     let branch_name = branch_name.unwrap();

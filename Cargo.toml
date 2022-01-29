@@ -1,5 +1,5 @@
 [package]
-name = "rusty-git-status"
+name = "posh-git-rust"
 version = "0.1.0"
 edition = "2021"
 

@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'rusty-git-status'",
+            "name": "Debug executable 'posh-git-rust'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=rusty-git-status",
-                    "--package=rusty-git-status"
+                    "--bin=posh-git-rust",
+                    "--package=posh-git-rust"
                 ],
                 "filter": {
-                    "name": "rusty-git-status",
+                    "name": "posh-git-rust",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'rusty-git-status'",
+            "name": "Debug unit tests in executable 'posh-git-rust'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=rusty-git-status",
-                    "--package=rusty-git-status"
+                    "--bin=posh-git-rust",
+                    "--package=posh-git-rust"
                 ],
                 "filter": {
-                    "name": "rusty-git-status",
+                    "name": "posh-git-rust",
                     "kind": "bin"
                 }
             },
