@@ -23,9 +23,22 @@ fn main() {
 
     let branch_name = parser::extract_branch_name(&git_status_command_output_string);
 
-    match branch_name {
-        Some(b) => println!("{}[{}]", args, b),
-        // Branch name not parsed
-        None => println!("{}", args),
+    if branch_name == None {
+        println!("{}", args)
     }
+
+    let branch_name = branch_name.unwrap();
+
+    let mut result = format!("[{}]", branch_name);
+
+    // TODO Add branch status
+
+    let changes_to_be_commited =
+        parser::extract_changes_to_be_commited(&git_status_command_output_string);
+
+    if let Some(fc) = changes_to_be_commited {
+        result.push_str(&format!(" +{} ~{} -{}", fc.added, fc.modified, fc.deleted))
+    }
+
+    println!("{}", result);
 }
