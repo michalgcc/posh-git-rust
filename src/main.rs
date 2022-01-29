@@ -27,7 +27,7 @@ fn main() {
 
     if branch_name == None {
         println!("{}", args);
-        return
+        return;
     }
 
     let branch_name = branch_name.unwrap();
