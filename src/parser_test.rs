@@ -58,4 +58,14 @@ Untracked files:
         assert_eq!(result.deleted, 1);
         assert_eq!(result.modified, 1);
     }
+
+    #[test]
+    fn extract_unstaged_changes_can_parse_proper_status() {
+        let result =
+            crate::parser::extract_unstaged_changes(EXAMPLE_GIT_STATUS).expect("Should return");
+
+        assert_eq!(result.added, 1);
+        assert_eq!(result.deleted, 1);
+        assert_eq!(result.modified, 5);
+    }
 }
