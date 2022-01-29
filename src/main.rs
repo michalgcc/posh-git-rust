@@ -1,5 +1,7 @@
 use std::env;
+use std::io::Write;
 use std::process::Command;
+use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 mod parser;
 
@@ -29,16 +31,27 @@ fn main() {
 
     let branch_name = branch_name.unwrap();
 
-    let mut result = format!("[{}]", branch_name);
-
-    // TODO Add branch status
-
     let changes_to_be_commited =
         parser::extract_changes_to_be_commited(&git_status_command_output_string);
 
+    let mut stdout = StandardStream::stdout(ColorChoice::Auto);
+    stdout.set_color(ColorSpec::new().set_fg(Some(Color::Yellow)));
+    write!(&mut stdout, "{}", "[");
+
+    // TODO Add branch status
+    stdout.set_color(ColorSpec::new().set_fg(Some(Color::Cyan)));
+    write!(&mut stdout, "{} =", branch_name);
+
     if let Some(fc) = changes_to_be_commited {
-        result.push_str(&format!(" +{} ~{} -{}", fc.added, fc.modified, fc.deleted))
+        stdout.set_color(ColorSpec::new().set_fg(Some(Color::Red)));
+        write!(
+            &mut stdout,
+            " +{} ~{} -{}",
+            fc.added, fc.modified, fc.deleted
+        );
     }
 
-    println!("{}", result);
+    stdout.set_color(ColorSpec::new().set_fg(Some(Color::Yellow)));
+    write!(&mut stdout, "{}", "]");
+    stdout.set_color(ColorSpec::new().set_reset(true));
 }
