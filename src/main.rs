@@ -44,7 +44,7 @@ fn main() {
 
     // TODO Add branch status
     stdout.set_color(ColorSpec::new().set_fg(Some(Color::Cyan))).expect(SET_FG_FAILED);
-    write!(&mut stdout, "{} =", branch_name);
+    write!(&mut stdout, "{} ≡ ", branch_name);
 
     if let Some(ref fc) = changes_to_be_commited {
         stdout.set_color(ColorSpec::new().set_fg(Some(Color::Green))).expect(SET_FG_FAILED);
