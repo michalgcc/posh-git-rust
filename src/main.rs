@@ -1,6 +1,5 @@
 use std::env;
 use std::io::Write;
-use std::process::Command;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 mod parser;
@@ -8,27 +7,17 @@ mod parser;
 #[cfg(test)]
 mod parser_test;
 
-const ARGS_SEPARATOR: &str = " ";
 const SET_FG_FAILED: &str = "Failed setting a color.";
 const FAILED_TO_WRITE_TO_STDOUT: &str = "Failed to write to stdout.";
 
 fn main() {
-    let args: Vec<String> = env::args().skip(1).collect();
-    let args = args.join(ARGS_SEPARATOR);
-
-    let git_status_command_output = Command::new("sh")
-        .arg("-c")
-        .arg("git status --long")
-        .output()
-        .expect("Failed to execute");
-
-    let git_status_command_output_string =
-        String::from_utf8(git_status_command_output.stdout).expect("Expect stdout");
+    let git_status_command_output_string: String = env::args()
+        .nth(1)
+        .expect("Expect 'git status --long' output.");
 
     let branch_name = parser::extract_branch_name(&git_status_command_output_string);
 
     if branch_name == None {
-        println!("{}", args);
         return;
     }
 
@@ -104,7 +93,7 @@ fn main() {
             .expect(SET_FG_FAILED);
         write!(
             &mut stdout,
-            " +{} ~{} -{}",
+            " +{} ~{} -{} !",
             fc.added, fc.modified, fc.deleted
         )
         .expect(FAILED_TO_WRITE_TO_STDOUT);
