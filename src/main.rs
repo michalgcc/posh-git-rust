@@ -55,7 +55,7 @@ fn main() {
             write!(&mut stdout, " ↑{}", bs.ahead).expect(FAILED_TO_WRITE_TO_STDOUT);
         } else if bs.behind > 0 {
             stdout
-                .set_color(ColorSpec::new().set_fg(Some(Color::Green)))
+                .set_color(ColorSpec::new().set_fg(Some(Color::Red)))
                 .expect(SET_FG_FAILED);
             write!(&mut stdout, " ↓{}", bs.behind).expect(FAILED_TO_WRITE_TO_STDOUT);
         } else if bs.gone {

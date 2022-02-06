@@ -7,4 +7,4 @@
 # PS1='[\u@\h \W] \[$(posh-git-rust "`git status --long 2>&1`")\]\$ '
 
 cargo build --release
-cp target/release/posh-git-rust ~/.local/bin/
+sudo cp target/release/posh-git-rust /usr/bin/
