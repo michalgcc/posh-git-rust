@@ -75,7 +75,6 @@ Untracked files:
         let result = crate::parser::extract_git_changes(EXAMPLE_GIT_STATUS).expect("Should return");
         let branch_status = result.branch_status.expect("Should have branch changes");
 
-        // Branch status
         assert_eq!(branch_status.ahead, 0);
         assert_eq!(branch_status.behind, 21);
         assert_eq!(branch_status.gone, false);

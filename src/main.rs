@@ -1,22 +1,32 @@
 use std::env;
-use std::io::Write;
-use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
+use termcolor::*;
 
-mod parser;
 mod formatter;
+mod parser;
 
+#[cfg(test)]
+mod formatter_test;
 #[cfg(test)]
 mod parser_test;
 
-const SET_FG_FAILED: &str = "Failed setting a color.";
-const FAILED_TO_WRITE_TO_STDOUT: &str = "Failed to write to stdout.";
-
 fn main() {
-    let git_status_command_output_string: String = env::args()
+    let arg: String = env::args()
         .nth(1)
         .expect("Expect 'git status --long' output.");
 
-    let git_changes = parser::extract_git_changes(&git_status_command_output_string);
+    match arg.as_str() {
+        "-v" | "--version" => {
+            println!("{} {}", env!("CARGO_PKG_NAME"), env!("CARGO_PKG_VERSION"));
+            return;
+        }
+        "-h" | "--help" => {
+            println!("GitHub: {}", env!("CARGO_PKG_REPOSITORY"));
+            return;
+        }
+        _ => {}
+    }
+
+    let git_changes = parser::extract_git_changes(&arg);
 
     if git_changes.is_none() {
         return;
@@ -24,80 +34,10 @@ fn main() {
 
     let git_changes = git_changes.unwrap();
 
-    let mut stdout = StandardStream::stdout(ColorChoice::Auto);
-    stdout
-        .set_color(ColorSpec::new().set_fg(Some(Color::Yellow)))
-        .expect(SET_FG_FAILED);
-    write!(&mut stdout, "{}", "[").expect(FAILED_TO_WRITE_TO_STDOUT);
+    let formatted_prompt_buffer =
+        formatter::format_git_status_prompt_buffer(&git_changes, ColorChoice::Auto).unwrap();
 
-    stdout
-        .set_color(ColorSpec::new().set_fg(Some(Color::Cyan)))
-        .expect(SET_FG_FAILED);
-    write!(&mut stdout, "{}", git_changes.branch_name).expect(FAILED_TO_WRITE_TO_STDOUT);
+    let buffer_writer = BufferWriter::stdout(ColorChoice::Auto);
 
-    if let Some(bs) = git_changes.branch_status {
-        if bs.ahead > 0 && bs.behind > 0 {
-            stdout
-                .set_color(ColorSpec::new().set_fg(Some(Color::Yellow)))
-                .expect(SET_FG_FAILED);
-
-            write!(&mut stdout, " ↑{}↓{}", bs.ahead, bs.behind).expect(FAILED_TO_WRITE_TO_STDOUT);
-        } else if bs.ahead > 0 {
-            stdout
-                .set_color(ColorSpec::new().set_fg(Some(Color::Green)))
-                .expect(SET_FG_FAILED);
-            write!(&mut stdout, " ↑{}", bs.ahead).expect(FAILED_TO_WRITE_TO_STDOUT);
-        } else if bs.behind > 0 {
-            stdout
-                .set_color(ColorSpec::new().set_fg(Some(Color::Red)))
-                .expect(SET_FG_FAILED);
-            write!(&mut stdout, " ↓{}", bs.behind).expect(FAILED_TO_WRITE_TO_STDOUT);
-        } else if bs.gone {
-            stdout
-                .set_color(ColorSpec::new().set_fg(Some(Color::Red)))
-                .expect(SET_FG_FAILED);
-            write!(&mut stdout, " ×",).expect(FAILED_TO_WRITE_TO_STDOUT);
-        }
-    } else {
-        write!(&mut stdout, " ≡").expect(FAILED_TO_WRITE_TO_STDOUT);
-    }
-
-    if let Some(ref fc) = git_changes.staged_changes {
-        stdout
-            .set_color(ColorSpec::new().set_fg(Some(Color::Green)))
-            .expect(SET_FG_FAILED);
-        write!(
-            &mut stdout,
-            " +{} ~{} -{}",
-            fc.added, fc.modified, fc.deleted
-        )
-        .expect(FAILED_TO_WRITE_TO_STDOUT);
-    }
-
-    if git_changes.staged_changes.is_some() && git_changes.unstaged_changes.is_some() {
-        stdout
-            .set_color(ColorSpec::new().set_fg(Some(Color::Yellow)))
-            .expect(SET_FG_FAILED);
-        write!(&mut stdout, " |").expect(FAILED_TO_WRITE_TO_STDOUT);
-    }
-
-    if let Some(ref fc) = git_changes.unstaged_changes {
-        stdout
-            .set_color(ColorSpec::new().set_fg(Some(Color::Red)))
-            .expect(SET_FG_FAILED);
-        write!(
-            &mut stdout,
-            " +{} ~{} -{} !",
-            fc.added, fc.modified, fc.deleted
-        )
-        .expect(FAILED_TO_WRITE_TO_STDOUT);
-    }
-
-    stdout
-        .set_color(ColorSpec::new().set_fg(Some(Color::Yellow)))
-        .expect(SET_FG_FAILED);
-    write!(&mut stdout, "{}", "]").expect(FAILED_TO_WRITE_TO_STDOUT);
-    stdout
-        .set_color(ColorSpec::new().set_reset(true))
-        .expect("Failed setting reset.");
+    buffer_writer.print(&formatted_prompt_buffer).unwrap();
 }
