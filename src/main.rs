@@ -3,6 +3,7 @@ use std::io::Write;
 use termcolor::{Color, ColorChoice, ColorSpec, StandardStream, WriteColor};
 
 mod parser;
+mod formatter;
 
 #[cfg(test)]
 mod parser_test;
@@ -15,18 +16,13 @@ fn main() {
         .nth(1)
         .expect("Expect 'git status --long' output.");
 
-    let branch_name = parser::extract_branch_name(&git_status_command_output_string);
+    let git_changes = parser::extract_git_changes(&git_status_command_output_string);
 
-    if branch_name == None {
+    if git_changes.is_none() {
         return;
     }
 
-    let branch_name = branch_name.unwrap();
-
-    let changes_to_be_commited =
-        parser::extract_changes_to_be_commited(&git_status_command_output_string);
-
-    let unstaged_changes = parser::extract_unstaged_changes(&git_status_command_output_string);
+    let git_changes = git_changes.unwrap();
 
     let mut stdout = StandardStream::stdout(ColorChoice::Auto);
     stdout
@@ -37,11 +33,9 @@ fn main() {
     stdout
         .set_color(ColorSpec::new().set_fg(Some(Color::Cyan)))
         .expect(SET_FG_FAILED);
-    write!(&mut stdout, "{}", branch_name).expect(FAILED_TO_WRITE_TO_STDOUT);
+    write!(&mut stdout, "{}", git_changes.branch_name).expect(FAILED_TO_WRITE_TO_STDOUT);
 
-    let branch_status = parser::extract_branch_status(&git_status_command_output_string);
-
-    if let Some(bs) = branch_status {
+    if let Some(bs) = git_changes.branch_status {
         if bs.ahead > 0 && bs.behind > 0 {
             stdout
                 .set_color(ColorSpec::new().set_fg(Some(Color::Yellow)))
@@ -68,7 +62,7 @@ fn main() {
         write!(&mut stdout, " ≡").expect(FAILED_TO_WRITE_TO_STDOUT);
     }
 
-    if let Some(ref fc) = changes_to_be_commited {
+    if let Some(ref fc) = git_changes.staged_changes {
         stdout
             .set_color(ColorSpec::new().set_fg(Some(Color::Green)))
             .expect(SET_FG_FAILED);
@@ -80,14 +74,14 @@ fn main() {
         .expect(FAILED_TO_WRITE_TO_STDOUT);
     }
 
-    if changes_to_be_commited.is_some() && unstaged_changes.is_some() {
+    if git_changes.staged_changes.is_some() && git_changes.unstaged_changes.is_some() {
         stdout
             .set_color(ColorSpec::new().set_fg(Some(Color::Yellow)))
             .expect(SET_FG_FAILED);
         write!(&mut stdout, " |").expect(FAILED_TO_WRITE_TO_STDOUT);
     }
 
-    if let Some(ref fc) = unstaged_changes {
+    if let Some(ref fc) = git_changes.unstaged_changes {
         stdout
             .set_color(ColorSpec::new().set_fg(Some(Color::Red)))
             .expect(SET_FG_FAILED);

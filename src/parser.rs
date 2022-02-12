@@ -7,7 +7,7 @@ const UNTRACKED_FILES_SECOND_HEADER: &str =
     "(use \"git add <file>...\" to include in what will be committed)";
 
 #[derive(Debug)]
-pub struct FilesChanges {
+pub struct FileChanges {
     pub added: i32,
     pub deleted: i32,
     pub modified: i32,
@@ -19,7 +19,23 @@ pub struct BranchStatus {
     pub gone: bool,
 }
 
-pub fn extract_branch_name(input: &str) -> Option<String> {
+pub struct GitChanges {
+    pub branch_name: String,
+    pub staged_changes: Option<FileChanges>,
+    pub unstaged_changes: Option<FileChanges>,
+    pub branch_status: Option<BranchStatus>,
+}
+
+pub fn extract_git_changes(input: &str) -> Option<GitChanges> {
+    Some(GitChanges {
+        branch_name: extract_branch_name(&input)?,
+        staged_changes: extract_stagged_changes(&input),
+        unstaged_changes: extract_unstaged_changes(&input),
+        branch_status: extract_branch_status(&input),
+    })
+}
+
+fn extract_branch_name(input: &str) -> Option<String> {
     let branch_positon = input.find(ON_BRANCH_STRING)? + ON_BRANCH_STRING.len();
     let parsed_line = input.split_at(branch_positon).1;
     let new_line_position = parsed_line.find(NEW_LINE_STRING)?;
@@ -30,7 +46,7 @@ pub fn extract_branch_name(input: &str) -> Option<String> {
     Some(result)
 }
 
-pub fn extract_changes_to_be_commited(input: &str) -> Option<FilesChanges> {
+fn extract_stagged_changes(input: &str) -> Option<FileChanges> {
     let changes_to_be_commited_lines = extract_relevant_lines(input, CHANGES_TO_BE_COMMITED_STRING);
 
     if changes_to_be_commited_lines.len() == 0 {
@@ -40,7 +56,7 @@ pub fn extract_changes_to_be_commited(input: &str) -> Option<FilesChanges> {
     extract_files_changes(changes_to_be_commited_lines)
 }
 
-pub fn extract_unstaged_changes(input: &str) -> Option<FilesChanges> {
+fn extract_unstaged_changes(input: &str) -> Option<FileChanges> {
     let changes_not_staged_for_commit_lines =
         extract_relevant_lines(input, CHANGES_NOT_STAGED_FOR_COMMIT);
 
@@ -52,14 +68,14 @@ pub fn extract_unstaged_changes(input: &str) -> Option<FilesChanges> {
 
     let partial_result = extract_files_changes(changes_not_staged_for_commit_lines)?;
 
-    Some(FilesChanges {
+    Some(FileChanges {
         added: untracked_files_lines.len() as i32,
         deleted: partial_result.deleted,
         modified: partial_result.modified,
     })
 }
 
-pub fn extract_branch_status(input: &str) -> Option<BranchStatus> {
+fn extract_branch_status(input: &str) -> Option<BranchStatus> {
     let first_few_input_lines = input.lines().take(3);
 
     let diverged_lines: Vec<&str> = first_few_input_lines
@@ -166,7 +182,7 @@ fn parse_to_i32_as_option(input: &str) -> Option<i32> {
     }
 }
 
-fn extract_files_changes(input: Vec<&str>) -> Option<FilesChanges> {
+fn extract_files_changes(input: Vec<&str>) -> Option<FileChanges> {
     let mut added = 0;
     let mut deleted = 0;
     let mut modified = 0;
@@ -184,7 +200,7 @@ fn extract_files_changes(input: Vec<&str>) -> Option<FilesChanges> {
         }
     }
 
-    Some(FilesChanges {
+    Some(FileChanges {
         added: added,
         deleted: deleted,
         modified: modified,

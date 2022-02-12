@@ -30,100 +30,106 @@ Untracked files:
 
     #[test]
     fn extract_branch_can_parse_proper_status() {
-        assert_eq!(
-            crate::parser::extract_branch_name(EXAMPLE_GIT_STATUS),
-            Some("main".to_string())
-        );
+        let result = crate::parser::extract_git_changes(EXAMPLE_GIT_STATUS).unwrap();
+
+        assert_eq!(result.branch_name, "main".to_string());
     }
 
     #[test]
     fn extract_branch_returns_none_when_the_status_is_empty() {
-        assert_eq!(crate::parser::extract_branch_name(""), None);
+        let result = crate::parser::extract_git_changes("");
+
+        assert_eq!(result.is_none(), true);
     }
 
     #[test]
     fn extract_branch_returns_none_when_random_string_is_used() {
-        assert_eq!(
-            crate::parser::extract_branch_name("This is a random string \n \n"),
-            None
-        );
+        let result = crate::parser::extract_git_changes("This is a random string \n \n");
+        assert_eq!(result.is_none(), true);
     }
 
     #[test]
-    fn extract_changes_to_be_commited_can_parse_proper_status() {
-        let result = crate::parser::extract_changes_to_be_commited(EXAMPLE_GIT_STATUS)
-            .expect("Should return");
+    fn extract_staged_changes_can_parse_proper_status() {
+        let result = crate::parser::extract_git_changes(EXAMPLE_GIT_STATUS).expect("Should return");
+        let staged_changes = result.staged_changes.expect("Should have staged changes");
 
-        assert_eq!(result.added, 1);
-        assert_eq!(result.deleted, 1);
-        assert_eq!(result.modified, 1);
+        assert_eq!(staged_changes.added, 1);
+        assert_eq!(staged_changes.deleted, 1);
+        assert_eq!(staged_changes.modified, 1);
     }
 
     #[test]
     fn extract_unstaged_changes_can_parse_proper_status() {
-        let result =
-            crate::parser::extract_unstaged_changes(EXAMPLE_GIT_STATUS).expect("Should return");
+        let result = crate::parser::extract_git_changes(EXAMPLE_GIT_STATUS).expect("Should return");
+        let unstaged_changes = result
+            .unstaged_changes
+            .expect("Should have unstaged changes");
 
-        assert_eq!(result.added, 1);
-        assert_eq!(result.deleted, 1);
-        assert_eq!(result.modified, 5);
+        assert_eq!(unstaged_changes.added, 1);
+        assert_eq!(unstaged_changes.deleted, 1);
+        assert_eq!(unstaged_changes.modified, 5);
     }
 
     #[test]
     fn extract_branch_status_can_parse_proper_status() {
-        let result =
-            crate::parser::extract_branch_status(EXAMPLE_GIT_STATUS).expect("Should return");
+        let result = crate::parser::extract_git_changes(EXAMPLE_GIT_STATUS).expect("Should return");
+        let branch_status = result.branch_status.expect("Should have branch changes");
 
-        assert_eq!(result.ahead, 0);
-        assert_eq!(result.behind, 21);
-        assert_eq!(result.gone, false);
+        // Branch status
+        assert_eq!(branch_status.ahead, 0);
+        assert_eq!(branch_status.behind, 21);
+        assert_eq!(branch_status.gone, false);
     }
 
     #[test]
     fn extract_branch_status_can_parse_behind_status() {
-        let result = crate::parser::extract_branch_status(
-            "Your branch is behind 'origin/main' by 2 commits, and can be fast forwarded.",
+        let result = crate::parser::extract_git_changes(
+            "On branch main\n Your branch is behind 'origin/main' by 2 commits, and can be fast forwarded.",
         )
         .expect("Should return");
+        let branch_status = result.branch_status.expect("Should have branch changes");
 
-        assert_eq!(result.ahead, 0);
-        assert_eq!(result.behind, 2);
-        assert_eq!(result.gone, false);
+        assert_eq!(branch_status.ahead, 0);
+        assert_eq!(branch_status.behind, 2);
+        assert_eq!(branch_status.gone, false);
     }
 
     #[test]
     fn extract_branch_status_can_parse_ahead_status() {
-        let result = crate::parser::extract_branch_status(
-            "Your branch is ahead of 'origin/main' by 1 commit.",
+        let result = crate::parser::extract_git_changes(
+            "On branch main\n Your branch is ahead of 'origin/main' by 1 commit.",
         )
         .expect("Should return");
+        let branch_status = result.branch_status.expect("Should have branch changes");
 
-        assert_eq!(result.ahead, 1);
-        assert_eq!(result.behind, 0);
-        assert_eq!(result.gone, false);
+        assert_eq!(branch_status.ahead, 1);
+        assert_eq!(branch_status.behind, 0);
+        assert_eq!(branch_status.gone, false);
     }
 
     #[test]
     fn extract_branch_status_can_parse_diverged_status() {
-        let result = crate::parser::extract_branch_status(
-            "Your branch and 'origin/master' have diverged,\nand have 1 and 2 different commits each, respectively.",
+        let result = crate::parser::extract_git_changes(
+            "On branch main\n Your branch and 'origin/master' have diverged,\nand have 1 and 2 different commits each, respectively.",
         )
         .expect("Should return");
+        let branch_status = result.branch_status.expect("Should have branch changes");
 
-        assert_eq!(result.ahead, 1);
-        assert_eq!(result.behind, 2);
-        assert_eq!(result.gone, false);
+        assert_eq!(branch_status.ahead, 1);
+        assert_eq!(branch_status.behind, 2);
+        assert_eq!(branch_status.gone, false);
     }
 
     #[test]
     fn extract_branch_status_can_parse_gone_status() {
-        let result = crate::parser::extract_branch_status(
-            "Your branch is based on 'origin/main', but the upstream is gone.",
+        let result = crate::parser::extract_git_changes(
+            "On branch main\n Your branch is based on 'origin/main', but the upstream is gone.",
         )
         .expect("Should return");
+        let branch_status = result.branch_status.expect("Should have branch changes");
 
-        assert_eq!(result.ahead, 0);
-        assert_eq!(result.behind, 0);
-        assert_eq!(result.gone, true);
+        assert_eq!(branch_status.ahead, 0);
+        assert_eq!(branch_status.behind, 0);
+        assert_eq!(branch_status.gone, true);
     }
 }
