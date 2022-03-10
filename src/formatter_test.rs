@@ -25,7 +25,7 @@ mod formatter_test {
         assert_eq!(no_color_result.unwrap(), "[main ≡]".to_string());
         assert_eq!(
             ansi_result.unwrap(),
-            r"\[[0m[33m\][\[[0m[36m\]main ≡\[[0m[33m\]]\[[0m\]".to_string()
+            "\u{1}\u{1b}[0m\u{1b}[33m\u{2}[\u{1}\u{1b}[0m\u{1b}[36m\u{2}main ≡\u{1}\u{1b}[0m\u{1b}[33m\u{2}]\u{1}\u{1b}[0m\u{2}".to_string()
         );
     }
 
@@ -52,7 +52,7 @@ mod formatter_test {
         assert_eq!(no_color_result.unwrap(), "[main ↓1]".to_string());
         assert_eq!(
             ansi_result.unwrap(),
-            r"\[[0m[33m\][\[[0m[31m\]main\[[0m[31m\] ↓1\[[0m[33m\]]\[[0m\]".to_string()
+            "\u{1}\u{1b}[0m\u{1b}[33m\u{2}[\u{1}\u{1b}[0m\u{1b}[31m\u{2}main\u{1}\u{1b}[0m\u{1b}[31m\u{2} ↓1\u{1}\u{1b}[0m\u{1b}[33m\u{2}]\u{1}\u{1b}[0m\u{2}".to_string()
         );
     }
 
@@ -79,7 +79,7 @@ mod formatter_test {
         assert_eq!(no_color_result.unwrap(), "[main ↑1]".to_string());
         assert_eq!(
             ansi_result.unwrap(),
-            r"\[[0m[33m\][\[[0m[36m\]main\[[0m[32m\] ↑1\[[0m[33m\]]\[[0m\]".to_string()
+            "\u{1}\u{1b}[0m\u{1b}[33m\u{2}[\u{1}\u{1b}[0m\u{1b}[36m\u{2}main\u{1}\u{1b}[0m\u{1b}[32m\u{2} ↑1\u{1}\u{1b}[0m\u{1b}[33m\u{2}]\u{1}\u{1b}[0m\u{2}".to_string()
         );
     }
 
@@ -106,7 +106,7 @@ mod formatter_test {
         assert_eq!(no_color_result.unwrap(), "[main ↑1↓1]".to_string());
         assert_eq!(
             ansi_result.unwrap(),
-            r"\[[0m[33m\][\[[0m[31m\]main\[[0m[33m\] ↑1↓1\[[0m[33m\]]\[[0m\]".to_string()
+            "\u{1}\u{1b}[0m\u{1b}[33m\u{2}[\u{1}\u{1b}[0m\u{1b}[31m\u{2}main\u{1}\u{1b}[0m\u{1b}[33m\u{2} ↑1↓1\u{1}\u{1b}[0m\u{1b}[33m\u{2}]\u{1}\u{1b}[0m\u{2}".to_string()
         );
     }
 
@@ -137,7 +137,7 @@ mod formatter_test {
         assert_eq!(no_color_result.unwrap(), "[main ≡ +1 ~1 -1]".to_string());
         assert_eq!(
             ansi_result.unwrap(),
-            r"\[[0m[33m\][\[[0m[36m\]main ≡\[[0m[32m\] +1 ~1 -1\[[0m[33m\]]\[[0m\]".to_string()
+            "\u{1}\u{1b}[0m\u{1b}[33m\u{2}[\u{1}\u{1b}[0m\u{1b}[36m\u{2}main ≡\u{1}\u{1b}[0m\u{1b}[32m\u{2} +1 ~1 -1\u{1}\u{1b}[0m\u{1b}[33m\u{2}]\u{1}\u{1b}[0m\u{2}".to_string()
         );
         println!("{}", ansi_result.unwrap());
     }
@@ -169,7 +169,7 @@ mod formatter_test {
         assert_eq!(no_color_result.unwrap(), "[main ≡ +1 ~1 -1 !]".to_string());
         assert_eq!(
             ansi_result.unwrap(),
-            r"\[[0m[33m\][\[[0m[36m\]main ≡\[[0m[31m\] +1 ~1 -1 !\[[0m[33m\]]\[[0m\]".to_string()
+            "\u{1}\u{1b}[0m\u{1b}[33m\u{2}[\u{1}\u{1b}[0m\u{1b}[36m\u{2}main ≡\u{1}\u{1b}[0m\u{1b}[31m\u{2} +1 ~1 -1 !\u{1}\u{1b}[0m\u{1b}[33m\u{2}]\u{1}\u{1b}[0m\u{2}".to_string()
         );
         println!("{}", ansi_result.unwrap());
     }
@@ -208,7 +208,7 @@ mod formatter_test {
         );
         assert_eq!(
             ansi_result.unwrap(),
-            r"\[[0m[33m\][\[[0m[36m\]main ≡\[[0m[32m\] +1 ~1 -1\[[0m[33m\] |\[[0m[31m\] +1 ~1 -1 !\[[0m[33m\]]\[[0m\]" 
+            "\u{1}\u{1b}[0m\u{1b}[33m\u{2}[\u{1}\u{1b}[0m\u{1b}[36m\u{2}main ≡\u{1}\u{1b}[0m\u{1b}[32m\u{2} +1 ~1 -1\u{1}\u{1b}[0m\u{1b}[33m\u{2} |\u{1}\u{1b}[0m\u{1b}[31m\u{2} +1 ~1 -1 !\u{1}\u{1b}[0m\u{1b}[33m\u{2}]\u{1}\u{1b}[0m\u{2}" 
                 .to_string()
         );
         println!("{}", ansi_result.unwrap());
@@ -248,7 +248,7 @@ mod formatter_test {
         );
         assert_eq!(
             ansi_result.unwrap(),
-            r"\[[0m[33m\][\[[0m[31m\]main\[[0m[33m\] ↑1↓1\[[0m[32m\] +1 ~1 -1\[[0m[33m\] |\[[0m[31m\] +1 ~1 -1 !\[[0m[33m\]]\[[0m\]"
+            "\u{1}\u{1b}[0m\u{1b}[33m\u{2}[\u{1}\u{1b}[0m\u{1b}[31m\u{2}main\u{1}\u{1b}[0m\u{1b}[33m\u{2} ↑1↓1\u{1}\u{1b}[0m\u{1b}[32m\u{2} +1 ~1 -1\u{1}\u{1b}[0m\u{1b}[33m\u{2} |\u{1}\u{1b}[0m\u{1b}[31m\u{2} +1 ~1 -1 !\u{1}\u{1b}[0m\u{1b}[33m\u{2}]\u{1}\u{1b}[0m\u{2}"
                 .to_string()
         );
         println!("{}", ansi_result.unwrap());
@@ -277,7 +277,7 @@ mod formatter_test {
         assert_eq!(no_color_result.unwrap(), "[main ×]".to_string());
         assert_eq!(
             ansi_result.unwrap(),
-            r"\[[0m[33m\][\[[0m[36m\]main\[[0m[31m\] ×\[[0m[33m\]]\[[0m\]".to_string()
+            "\u{1}\u{1b}[0m\u{1b}[33m\u{2}[\u{1}\u{1b}[0m\u{1b}[36m\u{2}main\u{1}\u{1b}[0m\u{1b}[31m\u{2} ×\u{1}\u{1b}[0m\u{1b}[33m\u{2}]\u{1}\u{1b}[0m\u{2}".to_string()
         );
         println!("{}", ansi_result.unwrap());
     }

@@ -132,11 +132,12 @@ fn set_color_mark_non_printable(
         return Ok(buffer);
     }
 
-    // Works for Bash
-    // TODO: Check compatibility with other shells
-    write!(buffer, r"\[")?;
+    // TODO: Tested with Bash 5.1.8 Check compatibility with other shells
+    // ASCII 001
+    write!(buffer, "\u{1}")?;
     buffer.set_color(color_spec)?;
-    write!(buffer, r"\]")?;
+    // ASCII 002
+    write!(buffer, "\u{2}")?;
 
     Ok(buffer)
 }
