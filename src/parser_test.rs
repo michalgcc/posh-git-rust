@@ -12,7 +12,6 @@ Changes to be committed:
         new file:   test.txt
         modified:   src/main.rs
 
-
 Changes not staged for commit:
   (use \"git add <file>...\" to update what will be committed)
   (use \"git restore <file>...\" to discard changes in working directory)
@@ -28,11 +27,38 @@ Untracked files:
         test2.txt
 ";
 
+    const EXAMPLE_GIT_STATUS_REBASE: &str = "\
+interactive rebase in progress; onto 6ac7fa973e
+Last command done (1 command done):
+   pick f5bf1edfec commit description
+No commands remaining.
+You are currently rebasing branch 'feature/branch' on '6ac7fa973e'.
+  (fix conflicts and then run \"git rebase --continue\")
+  (use \"git rebase --skip\" to skip this patch)
+  (use \"git rebase --abort\" to check out the original branch)
+ 
+Changes to be committed:
+  (use \"git restore --staged <file>...\" to unstage)
+        modified:   src/test.cs
+
+Unmerged paths:
+  (use \"git restore --staged <file>...\" to unstage)
+  (use \"git add <file>...\" to mark resolution)
+        both modified:   src/conflicted.cs
+";
+
     #[test]
-    fn extract_branch_can_parse_proper_status() {
+    fn extract_branch_can_parse_default_status_branch_name() {
         let result = crate::parser::extract_git_changes(EXAMPLE_GIT_STATUS).unwrap();
 
         assert_eq!(result.branch_name, "main".to_string());
+    }
+
+    #[test]
+    fn extract_branch_can_parse_rebase_status_branch_name() {
+        let result = crate::parser::extract_git_changes(EXAMPLE_GIT_STATUS_REBASE).unwrap();
+
+        assert_eq!(result.branch_name, "feature/branch".to_string());
     }
 
     #[test]

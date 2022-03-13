@@ -1,6 +1,7 @@
 const ON_BRANCH_STRING: &str = "On branch ";
-const EMPTY_STRING: &str = "";
-const NEW_LINE_STRING: &str = "\n";
+const YOU_ARE_CURRENTLY_STRING: &str = "You are currently ";
+const BRANCH_STRING: &str = "branch '";
+const ON_STRING: &str = "' on";
 const CHANGES_TO_BE_COMMITED_STRING: &str = "Changes to be committed:";
 const CHANGES_NOT_STAGED_FOR_COMMIT: &str = "Changes not staged for commit:";
 const UNTRACKED_FILES_SECOND_HEADER: &str =
@@ -24,6 +25,8 @@ pub struct GitChanges {
     pub staged_changes: Option<FileChanges>,
     pub unstaged_changes: Option<FileChanges>,
     pub branch_status: Option<BranchStatus>,
+    // TODO Add worktree status
+    // pub worktree_status: Option<String>
 }
 
 pub fn extract_git_changes(input: &str) -> Option<GitChanges> {
@@ -36,14 +39,44 @@ pub fn extract_git_changes(input: &str) -> Option<GitChanges> {
 }
 
 fn extract_branch_name(input: &str) -> Option<String> {
-    let branch_positon = input.find(ON_BRANCH_STRING)? + ON_BRANCH_STRING.len();
-    let parsed_line = input.split_at(branch_positon).1;
-    let new_line_position = parsed_line.find(NEW_LINE_STRING)?;
-    let parsed_line = parsed_line.split_at(new_line_position).0;
+    let on_branch_lines: Vec<&str> = input
+        .lines()
+        .filter(|&l| l.find(ON_BRANCH_STRING).is_some())
+        .collect();
 
-    let result = parsed_line.replace(ON_BRANCH_STRING, EMPTY_STRING);
+    if on_branch_lines.len() > 0 {
+        let on_branch_line = on_branch_lines.first().unwrap();
+        let on_branch_index = on_branch_line.find(ON_BRANCH_STRING)? + ON_BRANCH_STRING.len();
 
-    Some(result)
+        let result = on_branch_line
+            .chars()
+            .skip(on_branch_index)
+            .take_while(|&c| c != '\n')
+            .collect();
+
+        return Some(result);
+    }
+
+    let you_are_currently_lines: Vec<&str> = input
+        .lines()
+        .filter(|&l| l.find(YOU_ARE_CURRENTLY_STRING).is_some())
+        .collect();
+
+    if you_are_currently_lines.len() > 0 {
+        let you_are_currently_line = you_are_currently_lines.first().unwrap();
+        let branch_index = you_are_currently_line.find(BRANCH_STRING)? + BRANCH_STRING.len();
+        let branch_name_len = you_are_currently_line.find(ON_STRING)? - branch_index;
+
+        let result = you_are_currently_line
+            .chars()
+            .skip(branch_index)
+            .take(branch_name_len)
+            .collect();
+
+        return Some(result);
+    }
+
+    None
 }
 
 fn extract_stagged_changes(input: &str) -> Option<FileChanges> {
