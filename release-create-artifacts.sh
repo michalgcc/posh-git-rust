@@ -37,10 +37,10 @@ mkdir artifacts
 
 bin_path=target/release/posh-git-rust
 
-cargo build --release
-strip $bin_path
-
-cp $bin_path artifacts
+podman build -t posh-git-rust .
+podman create -ti --name posh-git-rust localhost/posh-git-rust:latest bash
+podman cp posh-git-rust:/app/target/release/posh-git-rust artifacts
+podman rm -f posh-git-rust
 
 cd artifacts
 
